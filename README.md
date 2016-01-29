@@ -4,7 +4,7 @@ This is my Frogger arcade game clone for the Udacity Front-End Web Development n
 
 To run the game
 ---------------
-Please go to [my GitHub page](http://lagracia.github.io/starchaser-frontend-nanodegree-arcade-game/ "Starchaser Arcade Game Clone") and enjoy the game :)
+Please go to [my GitHub page](http://lagracia.github.io/frontend-nanodegree-arcade-game/ "Starchaser Arcade Game Clone") and enjoy the game :)
 
 To play the game
 ----------------
