@@ -72,17 +72,16 @@ var Engine = (function(global) {
         main();
     }
 
-    /* This function is called by main (our game loop) and itself calls all
-     * of the functions which may need to update entity's data. Based on how
-     * you implement your collision detection (when two entities occupy the
-     * same space, for instance when your character should die), you may find
-     * the need to add an additional function call here. For now, we've left
-     * it commented out - you may or may not want to implement this
-     * functionality this way (you could just implement collision detection
-     * on the entities themselves within your app.js file).
-     */
+    /* This is called by the main function (the game loop) and in turn calls 
+    all the functions necessary to update the player, any enemy, and any star. 
+    The checkCollisions function call was commented out, and I have chosen to 
+    leave it that way because my collision detection is implemented in app.js 
+    instead. The clear rectangle redraws the canvas when the player is in the 
+    water. Without this, part of the player's head remains rendered off the 
+    game board. The solution was given in <https://discussions.udacity.com/t/canvas-not-clearing-player-bug-fixed/29714>. */
     function update(dt) {
         updateEntities(dt);
+        ctx.clearRect(0, 40, canvas.width, 80);
         // checkCollisions();
     }
 
@@ -115,8 +114,8 @@ var Engine = (function(global) {
                 'images/water-block.png',   // Top row is water
                 'images/stone-block.png',   // Row 1 of 3 of stone
                 'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
+                'images/grass-block.png',   // Row 3 of 3 of grass
+                'images/stone-block.png',   // Row 1 of 2 of stone
                 'images/grass-block.png'    // Row 2 of 2 of grass
             ],
             numRows = 6,

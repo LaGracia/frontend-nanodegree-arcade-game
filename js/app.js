@@ -18,7 +18,7 @@ var Enemy = function(x, y, speed) {
     this.sprite = 'images/enemy-bug.png';
     this.x = x;
     this.y = y;
-    this.speed = Math.floor((Math.random() * 400) + 100);
+    this.speed = Math.floor((Math.random() * 500) + 100);
 };
 
 // Speed of movement across the screen and behavior at canvas edges
@@ -26,7 +26,7 @@ Enemy.prototype.update = function(dt) {
     this.x += this.speed * dt; // speed is the same on all computers
     if (this.x > 500) { // whenever a bug reaches the right edge
         this.x = -100; // a new bug appears at the left edge
-        this.speed = Math.floor((Math.random() * 400) + 100);
+        this.speed = Math.floor((Math.random() * 600) + 200);
     }
 };
 
@@ -35,12 +35,15 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-/* The enemy array. The for loop keeps adding bugs to rows 1-3. 
+/* The enemy array. The for loop keeps adding bugs to the pavement. 
 The ones in the top row are centered at -100px on the horizontal 
-axis of the canvas and at 60px on the vertical. Each of the others 
-start at the same horizontal point 83px below the previous one. */
+axis and at 60px on the vertical. Each of the others start at the 
+same horizontal point 83px below the previous one, except on the 
+“safe” grassy strip in the middle - no bugs will run across this. 
+I edited engine.js to switch the grass and pavement rows. */
 var allEnemies = [];
-for (var i = 0; i < 3; i++) {
+for (var i = 0; i < 4; i++) {
+    if (i === 2) {continue;}
     allEnemies.push(new Enemy(-100, 60 + (83 * i)));
 }
 
@@ -48,7 +51,7 @@ for (var i = 0; i < 3; i++) {
     PLAYER
 ============= */
 
-// Appearance, position, number of lives, and the user's score
+// Appearance, position, number of lives, and user score
 var Player = function(x, y, lives, score) {
     this.sprite = 'images/char-cat-girl.png';
     this.x = x;
@@ -60,12 +63,12 @@ var Player = function(x, y, lives, score) {
 // Behavior on reaching water, colliding with a bug, collecting a star
 Player.prototype.update = function() {
     if (this.y <= 40) { // when player reaches the edge of the water
-        this.y = 303; // player's position on vertical axis is reset
+        this.y = 390; // player's position on vertical axis is reset
         this.score += 10; // user's score increases
     }
-    this.drawText(); // score is shown above the canvas (see below)
-    this.collision(); // this function is defined below
-    this.collection(); // this function is defined below
+    this.drawText(); // score is shown above the canvas (defined below)
+    this.collision(); // behavior on collision with bug (defined below)
+    this.collection(); // behavior on collecting stars (defined below)
 };
 
 // How the player is drawn on the screen
@@ -75,26 +78,26 @@ Player.prototype.render = function() {
 
 // How the user controls the player, using arrow keys
 Player.prototype.handleInput = function(key) {
-    var horizontalStep = 100;
-    var verticalStep = 87;
+    var horizontalStep = 100; // number of pixels up or down
+    var verticalStep = 87; // number of pixels left or right
     if (key === 'up') {
-        if (this.y === 40) {
-            this.resetPlayer(); // movement stops at water's edge
+        if (this.y === 40) { // movement stops at water's edge
+            this.reset();
         }
         this.y -= verticalStep;
     } else if (key === 'down') {
-        if (this.y === 390) {
-            this.resetPlayer(); // movement off bottom is not allowed
+        if (this.y === 390) { // movement off bottom is not allowed
+            this.reset();
         }
         this.y += verticalStep;
-    } else if (key === 'left') {
+    } else if (key === 'left') { // no movement off left side
         if (this.x < 40) {
-            this.resetPlayer(); // movement off left side not allowed
+            this.reset();
         }
         this.x -= horizontalStep;
-    } else if (key === 'right') {
+    } else if (key === 'right') { // no movement off right side
         if (this.x === 400) {
-            this.resetPlayer(); // movement off right side not allowed
+            this.reset();
         }
         this.x += horizontalStep;
     }
@@ -103,8 +106,8 @@ Player.prototype.handleInput = function(key) {
 // The player object
 var player = new Player(200, 390, 3, 0);
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+/* This listens for key presses and sends the keys to the 
+Player.handleInput() method. */
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
@@ -112,7 +115,6 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down'
     };
-
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
@@ -137,7 +139,7 @@ var random = function(low,high) {
 };
 
 Star.prototype.update = function() {
-    this.collection(); // this function is defined below
+    this.collection(); // behavior when player collects (defined below)
 };
 
 // How each star is drawn on the screen
@@ -163,38 +165,42 @@ var collision = function(a, b) {
             (a.y + 50) > b.y;
 };
 
+window.setTimeout(player.wait, 5000);
+
 // User score and player lives on collision with an enemy bug
+// TODO: Use setTimeout to delay location reset after collision
 Player.prototype.collision = function() {
     for (var i = 0; i < allEnemies.length; i++) {
         if (collision(this, allEnemies[i])) {
-            alert('OOPS, YOU RAN INTO A BUG!');
             this.lives -= 1; // player loses a life
-            this.y = 303; // player's vertical location is reset
+            this.y = 390; // player's vertical position is reset
         }
         if (this.lives < 0) { // when player has lost all extra lives
             alert('GAME OVER! RELOAD TO REPLAY (CMD-R or CTRL-R).');
-            resetPlayer();
+            player.reset();
         }
-        if (this.score % 15 === 0 && // if score is divisible by 15
+        if (this.score != 0 && // if score is higher than 0
+            this.score % 15 === 0 && // and is a multiple of 15
             this.lives === 0) { // and player has lost all extra lives
                 alert('SCORE IS A MULTIPLE OF 15 - ' +
                 'EXTRA LIFE & BONUS POINTS!');
                 this.lives += 1; // player gains a bonus life
                 this.score += 5; // user gets bonus points
-                this.y = 303; // player's vertical location is reset
+                this.y = 390; // player's vertical position is reset
         }
     }
 };
 
-// User score increase whenever the player collides with a star
+// User score when player collides with star (i.e., star collection)
 Player.prototype.collection = function() {
     if (collision(this, star)) {
         this.score += 5;
     }
 };
 
-// Star relocation after collection - i.e., collision with player
-// TODO: Can I avoid having to rewrite this.x and this.y here?
+// New star's random location every time player makes a collection
+// TODO: Avoid rewriting this.x and this.y in full
+// TODO: Use setTimeout to delay this
 Star.prototype.collection = function() {
     if (collision(this, player)) {
         this.x = colWidth * random(0,5);
@@ -209,23 +215,25 @@ Star.prototype.collection = function() {
 /* Text showing user score, player lives, and simplified instructions; 
 adapted from <https://github.com/jyothisridhar/frontend-nanodegree-
 arcade-game/blob/master/js/app.js>. I extended the height of the 
-canvas by 50px in engine.js. Each text is drawn on a clear-rectangle 
-background. The score and life counts are in a different font and 
-size than the instructions. */
+canvas by 50px in engine.js. The score and life counts are in a 
+different font, size and color than the instructions. */
 Player.prototype.drawText = function() {
-    ctx.fillStyle = '#333333';
-    ctx.font = '30px Boogaloo';
-    ctx.clearRect(0, 0, 160, 40);
+    ctx.fillStyle = '#333';
+    ctx.font = '26px Permanent Marker';
+    ctx.clearRect(0, 0, 505, 40);
     ctx.fillText('Score  ' + this.score, 10, 30);
-    ctx.clearRect(420, 0, 160, 40);
-    ctx.fillText('Lives  ' + this.lives, 420, 30);
-    ctx.font = 'bold 12px Arial';
-    ctx.clearRect(0, 601, 505, 656);
-    ctx.fillText('Use the arrow keys to move your player. ' + 
-        'You’ll get 10 points for reaching the water and', 0, 611);
-    ctx.fillText('5 points for collecting a star. ' +
-        'There’s a chance to get extra lives and points. Good luck!', 0, 631);
+    ctx.clearRect(400, 0, 505, 40);
+    ctx.fillText('Lives  ' + this.lives, 400, 30);
+    ctx.fillStyle = '#222';
+    ctx.font = 'bold 14px Arial';
+    ctx.clearRect(0, 595, 505, 656);
+    ctx.fillText('Use the arrow keys to move the player. ' + 
+        'Get 10 points for reaching the water', 0, 610);
+    ctx.fillText('and 5 points for collecting a star. ' +
+        'You can get extra lives and bonus points!', 0, 630);
 
 };
-// Blue background behind the game canvas
+
+/* Blue background behind the game canvas. This makes the star look 
+more like it's glowing. */
 document.body.style.backgroundColor = '#1ac6ff';
