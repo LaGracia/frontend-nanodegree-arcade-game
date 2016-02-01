@@ -21,8 +21,8 @@ The player must reach the water without colliding with any bugs. Why Starchaser?
 
 ### Credits
 
-Having absolutely zero programming background, I needed step-by-step explanations for _every single line_ of code. Some were provided in a discussion forum post written by Udacity coach Udayan. However, I still had to copy and adapt from students who shared links in the forum to their GitHub repositories. Many thanks to danielmoi, morapost, andrewlw89, jyothisridhar, ayimaster, lacyjpr and joseterrera, among others.
+Having absolutely zero programming background, I needed step-by-step explanations for _every single line_ of code. Some were provided in a discussion post written by Udacity coach Udayan. However, I still had to copy from students who shared their work in the forum. Many thanks to danielmoi, morapost, andrewlw89, jyothisridhar, ayimaster, lacyjpr, joseterrera, poonamgp14, justintemps and dooster, among others. Thanks also to my code reviewers.
 
 ### License
 
-Starchaser is licensed under the GitHub terms of service, meaning you can view and fork this repository.
+Starchaser is licensed under [GitHub’s terms of service](https://help.github.com/articles/github-terms-of-service/), meaning you can view and fork this repository.
